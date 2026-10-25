@@ -1,9 +1,11 @@
 name: Container image build
 
 on:
+  pull_request: {}
   push:
-    branches:
-      - master
+    tags:
+      - '**'
+  workflow_dispatch: {}
 
 jobs:
   ko:

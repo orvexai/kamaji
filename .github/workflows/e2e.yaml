@@ -1,22 +1,8 @@
 name: e2e
 
 on:
-  push:
-    branches: [ "*" ]
-    paths:
-      - '.github/workflows/e2e.yaml'
-      - 'api/**'
-      - 'charts/kamaji/**'
-      - 'controllers/**'
-      - 'e2e/*'
-      - '.ko.yaml'
-      - 'go.*'
-      - 'main.go'
-      - 'Makefile'
-      - 'internal/**'
-      - 'cmd/**'
   pull_request:
-    branches: [ "*" ]
+    branches: ["*"]
     paths:
       - '.github/workflows/e2e.yaml'
       - 'api/**'
@@ -29,6 +15,11 @@ on:
       - 'Makefile'
       - 'internal/**'
       - 'cmd/**'
+
+  push:
+    tags:
+      - '**'
+  workflow_dispatch: {}
 
 jobs:
   kind:
