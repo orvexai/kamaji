@@ -3,6 +3,10 @@ name: Check PR Title
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
+  push:
+    tags:
+      - '**'
+  workflow_dispatch: {}
 
 jobs:
   semantic-pr-title:

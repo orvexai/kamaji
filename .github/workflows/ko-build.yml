@@ -1,12 +1,10 @@
 name: Container image build
 
 on:
+  pull_request: {}
   push:
     tags:
-      - edge-*
-      - v*
-    branches:
-      - master
+      - '**'
   workflow_dispatch:
     inputs:
       tag:
