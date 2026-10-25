@@ -4,29 +4,31 @@ on:
   pull_request: {}
   push:
     tags:
-      - '**'
+    - '**'
   workflow_dispatch: {}
 
 jobs:
   ko:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
 
-      - uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
+    - uses: actions/setup-go@v6
+      with:
+        go-version-file: go.mod
 
-      - name: "ko: install"
-        run: make ko
+    - name: "ko: install"
+      run: make ko
 
-      - name: "ko: login to quay.io container registry"
-        run: ./bin/ko login quay.io -u ${{ secrets.QUAY_IO_USERNAME }} -p ${{ secrets.QUAY_IO_TOKEN }}
+    - name: "ko: login to quay.io container registry"
+      run: ./bin/ko login quay.io -u ${{ secrets.QUAY_IO_USERNAME }} -p ${{ 
+        secrets.QUAY_IO_TOKEN }}
 
-      - name: "ko: login to docker.io container registry"
-        run: ./bin/ko login docker.io -u ${{ secrets.DOCKER_IO_USERNAME }} -p ${{ secrets.DOCKER_IO_TOKEN }}
+    - name: "ko: login to docker.io container registry"
+      run: ./bin/ko login docker.io -u ${{ secrets.DOCKER_IO_USERNAME }} -p ${{ 
+        secrets.DOCKER_IO_TOKEN }}
 
-      - name: "ko: build and push latest"
-        run: make VERSION=latest KO_LOCAL=false KO_PUSH=true build
+    - name: "ko: build and push latest"
+      run: make VERSION=latest KO_LOCAL=false KO_PUSH=true build

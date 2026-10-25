@@ -4,7 +4,7 @@ on:
   pull_request: {}
   push:
     tags:
-      - '**'
+    - '**'
   workflow_dispatch:
 
 permissions:
@@ -14,49 +14,51 @@ jobs:
   release:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
 
-      - name: "tag: compute"
-        id: git
-        run: |
-          CURRENT_DATE=$(date -u +'%Y-%m-%d')
-          YY=$(date -u +'%y')
-          M=$(date -u +'%_m' | sed 's/ //g')
-          FIRST_OF_MONTH=$(date -u -d "$CURRENT_DATE" +%Y-%m-01)
-          WEEK_NUM=$(( (($(date -u +%s) - $(date -u -d "$FIRST_OF_MONTH" +%s)) / 86400 + $(date -u -d "$FIRST_OF_MONTH" +%u) - 1) / 7 + 1 ))
+    - name: "tag: compute"
+      id: git
+      run: |
+        CURRENT_DATE=$(date -u +'%Y-%m-%d')
+        YY=$(date -u +'%y')
+        M=$(date -u +'%_m' | sed 's/ //g')
+        FIRST_OF_MONTH=$(date -u -d "$CURRENT_DATE" +%Y-%m-01)
+        WEEK_NUM=$(( (($(date -u +%s) - $(date -u -d "$FIRST_OF_MONTH" +%s)) / 86400 + $(date -u -d "$FIRST_OF_MONTH" +%u) - 1) / 7 + 1 ))
 
-          TAG="$YY.$M.$WEEK_NUM-edge"
+        TAG="$YY.$M.$WEEK_NUM-edge"
 
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: "tag: push"
-        run: |
-          git tag ${{ steps.git.outputs.tag }}
-          git push origin ${{ steps.git.outputs.tag }}
+    - name: "tag: push"
+      run: |
+        git tag ${{ steps.git.outputs.tag }}
+        git push origin ${{ steps.git.outputs.tag }}
 
-      - uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
+    - uses: actions/setup-go@v6
+      with:
+        go-version-file: go.mod
 
-      - name: "deps: installing ko"
-        run: make ko
+    - name: "deps: installing ko"
+      run: make ko
 
-      - name: "ko: login to quay.io container registry"
-        run: ./bin/ko login quay.io -u ${{ secrets.QUAY_IO_USERNAME }} -p ${{ secrets.QUAY_IO_TOKEN }}
+    - name: "ko: login to quay.io container registry"
+      run: ./bin/ko login quay.io -u ${{ secrets.QUAY_IO_USERNAME }} -p ${{ 
+        secrets.QUAY_IO_TOKEN }}
 
-      - name: "ko: login to docker.io container registry"
-        run: ./bin/ko login docker.io -u ${{ secrets.DOCKER_IO_USERNAME }} -p ${{ secrets.DOCKER_IO_TOKEN }}
+    - name: "ko: login to docker.io container registry"
+      run: ./bin/ko login docker.io -u ${{ secrets.DOCKER_IO_USERNAME }} -p ${{ 
+        secrets.DOCKER_IO_TOKEN }}
 
-      - name: "path: expanding with local binaries"
-        run: echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
+    - name: "path: expanding with local binaries"
+      run: echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
 
-      - name: "goreleaser: release"
-        uses: goreleaser/goreleaser-action@v7
-        with:
-          distribution: goreleaser
-          version: "~> v2"
-          args: release --clean
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: "goreleaser: release"
+      uses: goreleaser/goreleaser-action@v7
+      with:
+        distribution: goreleaser
+        version: "~> v2"
+        args: release --clean
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
